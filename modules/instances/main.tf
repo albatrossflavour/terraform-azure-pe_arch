@@ -153,21 +153,21 @@ resource "azurerm_linux_virtual_machine" "psql" {
   source_image_id = var.image_id
 
   dynamic "source_image_reference" {
-    for_each = local.windows_dynamic_image_reference
+    for_each = local.dynamic_image_reference
     content {
-      publisher = var.windows_image_publisher
-      offer     = var.windows_image_offer
-      sku       = var.windows_image_sku
-      version   = var.windows_image_version
+      publisher = var.image_publisher
+      offer     = var.image_offer
+      sku       = var.image_sku
+      version   = var.image_version
     }
   }
 
   dynamic "plan" {
-    for_each = local.windows_dynamic_image_plan
+    for_each = local.dynamic_image_plan
     content {
-      name      = var.windows_plan_name
-      product   = var.windows_plan_product
-      publisher = var.windows_plan_publisher
+      name      = var.plan_name
+      product   = var.plan_product
+      publisher = var.plan_publisher
     }
   }
 
