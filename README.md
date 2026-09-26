@@ -2,16 +2,15 @@
 
 IaC definitions for three of the supported Puppet Enterprise architectures for Azure
 
-#### Table of Contents
+## Table of Contents
 
 1. [Description](#description)
 2. [Setup - The basics of getting started with azure-pe_arch](#setup)
     * [What azure-pe_arch affects](#what-azure-pe_arch-affects)
     * [Setup requirements](#setup-requirements)
-    * [Beginning with azure-pe_arch](#beginning-with-azure-pe_arch)
+    * [Beginning with terraform-azure-pe_arch](#beginning-with-terraform-azure-pe_arch)
 3. [Usage - Configuration options and additional functionality](#usage)
 4. [Limitations - OS compatibility, etc.](#limitations)
-5. [Development - Guide for contributing to the module](#development)
 
 ## Description
 
@@ -47,7 +46,24 @@ Types of things you'll be paying your cloud provider for
 * [Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [AZ Login](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs#authenticating-to-azure)
 * [Git Installed](https://git-scm.com/downloads)
-* [Terraform (>= 0.13.0) Installed](https://www.terraform.io/downloads.html)
+* [OpenTofu (>= 1.5) Installed](https://opentofu.org/docs/intro/install/) or [Terraform (>= 1.5)](https://developer.hashicorp.com/terraform/install)
+* An Azure subscription ID available to the provider (see below)
+
+The module pins these provider versions:
+
+* `hashicorp/azurerm` 5.7.0
+* `hashicorp/random` 3.9.1
+* `chriskuchin/hiera5` 0.5.4
+
+### Selecting the Azure subscription
+
+Since azurerm 4.0 the provider must be given a subscription ID. The module accepts an optional `subscription_id` variable. When it is left unset the provider falls back to the `ARM_SUBSCRIPTION_ID` environment variable, and then to the default subscription of the logged in Azure CLI. When driving the module from pecdm the simplest option is to export `ARM_SUBSCRIPTION_ID` before running the plan, because the environment variable is also picked up by the destroy plan, which writes its own minimal tfvars file.
+
+```bash
+export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+```
+
+azurerm 5.0 no longer registers Azure resource providers by default. The module registers `Microsoft.Compute` and `Microsoft.Network` itself, which only needs permission to register resource providers if they are not already registered in the subscription.
 
 ### Beginning with terraform-azure-pe_arch
 
@@ -83,4 +99,4 @@ The number of options required are reduced when destroying a stack
 
 ## Limitations
 
-Currently limited to CentOS and VM disk sizes are not configurable
+The default Linux image is AlmaLinux 9 (`almalinux:almalinux-x86_64:9-gen2:latest`), which needs no Marketplace plan, so `image_plan` defaults to an empty string. Any other image can be passed through `instance_image`, with `image_plan` set when the image carries a Marketplace plan. VM disk sizes are not configurable.

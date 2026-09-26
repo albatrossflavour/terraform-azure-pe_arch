@@ -2,15 +2,15 @@ variable "project" {
   description = "Name of Azure resource group that will be used for grouping infrastructure"
   type        = string
 }
-variable "user" { 
+variable "user" {
   description = "Instance user name that will used for SSH operations"
   type        = string
 }
-variable "windows_user" { 
+variable "windows_user" {
   description = "Instance user name that will used for WINRM operations"
   type        = string
 }
-variable "windows_password" { 
+variable "windows_password" {
   description = "Password that will used for WINRM operations"
   type        = string
   sensitive   = true
@@ -39,12 +39,12 @@ variable "node_count" {
 variable "instance_image" {
   description = "The disk image to use when deploying new cloud instances in the form of a full length Image ID or Marketplace URN"
   type        = string
-  default     = "almalinux:almalinux:8-gen2:latest"
+  default     = "almalinux:almalinux-x86_64:9-gen2:latest"
 }
 variable "image_plan" {
   description = "The Marketplace offering's plan if it has one in Marketplace URN style, name:product:publisher"
   type        = string
-  default     = "8-gen2:almalinux:almalinux"
+  default     = ""
 }
 
 variable "windows_node_count" {
@@ -65,7 +65,7 @@ variable "windows_image_plan" {
 
 variable "tags" {
   description = "A set of tags that will be assigned to resources along with required"
-  type        = map
+  type        = map(any)
   default     = {}
 }
 variable "firewall_allow" {
@@ -92,6 +92,11 @@ variable "destroy" {
   description = "Available to facilitate simplified destroy via Puppet Bolt, irrelevant outside specific use case"
   type        = bool
   default     = false
+}
+variable "subscription_id" {
+  description = "Azure subscription ID to deploy into. Defaults to null, in which case the ARM_SUBSCRIPTION_ID environment variable or the Azure CLI default subscription is used"
+  type        = string
+  default     = null
 }
 variable "domain_name" {
   description = "Custom domain to use for internalDNS"

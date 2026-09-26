@@ -123,7 +123,7 @@ variable "windows_node_count" {
 
 variable "tags" {
   description = "A set of tags that will be assigned to resources along with required"
-  type        = map
+  type        = map(any)
 }
 variable "region" {
   description = "Region to create instances in"

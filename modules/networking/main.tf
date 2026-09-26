@@ -2,11 +2,11 @@
 # terraform is unable to track the two and can / will create clashes so it will be clearer
 # to create subnet resources
 resource "azurerm_virtual_network" "pe" {
- name                = "pe-${var.id}"
- address_space       = ["10.138.0.0/16"]
- location            = var.region
- resource_group_name = var.resourcegroup.name
- tags                = var.tags
+  name                = "pe-${var.id}"
+  address_space       = ["10.138.0.0/16"]
+  location            = var.region
+  resource_group_name = var.resourcegroup.name
+  tags                = var.tags
 }
 
 resource "azurerm_subnet" "pe_subnet" {
@@ -32,16 +32,16 @@ resource "azurerm_subnet_network_security_group_association" "pe_subnet_nsg" {
 }
 
 resource "azurerm_network_security_rule" "pe_ingressrule" {
-  name                         = "General_ingress_rule"
-  count                        = length(var.allow) >= 1 ? 1 : 0
-  priority                     = 1000
-  direction                    = "Inbound"
-  access                       = "Allow"
-  protocol                     = "*"
-  source_port_range            = "*"
-  destination_port_range       = "*"
-  source_address_prefixes      = var.allow
-  destination_address_prefix   = "*"
-  resource_group_name          = var.resourcegroup.name
-  network_security_group_name  = azurerm_network_security_group.pe_nsg.name
+  name                        = "General_ingress_rule"
+  count                       = length(var.allow) >= 1 ? 1 : 0
+  priority                    = 1000
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefixes     = var.allow
+  destination_address_prefix  = "*"
+  resource_group_name         = var.resourcegroup.name
+  network_security_group_name = azurerm_network_security_group.pe_nsg.name
 }

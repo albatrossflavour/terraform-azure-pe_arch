@@ -1,9 +1,9 @@
 locals {
-  av_set = var.compiler_count > 0 ? 1 : 0
-  dynamic_image_reference = var.image_id == null ? [1] : []
-  dynamic_image_plan = var.image_id == null ? length(compact([var.plan_name, var.plan_product, var.plan_publisher])) == 3 ? [1] : []  : []
+  av_set                          = var.compiler_count > 0 ? 1 : 0
+  dynamic_image_reference         = var.image_id == null ? [1] : []
+  dynamic_image_plan              = var.image_id == null ? length(compact([var.plan_name, var.plan_product, var.plan_publisher])) == 3 ? [1] : [] : []
   windows_dynamic_image_reference = var.windows_image_id == null ? [1] : []
-  windows_dynamic_image_plan = var.windows_image_id == null ? length(compact([var.windows_plan_name, var.windows_plan_product, var.windows_plan_publisher])) == 3 ? [1] : []  : []
+  windows_dynamic_image_plan      = var.windows_image_id == null ? length(compact([var.windows_plan_name, var.windows_plan_product, var.windows_plan_publisher])) == 3 ? [1] : [] : []
 }
 
 resource "azurerm_ssh_public_key" "pe_adm" {
@@ -43,13 +43,13 @@ resource "azurerm_network_interface" "server_nic" {
 # standard architecture the instance will also serve catalogs as a Compiler in
 # addition to hosting all other core services. 
 resource "azurerm_linux_virtual_machine" "server" {
-  name                   = "pe-server-${count.index}-${var.id}"
-  count                  = var.server_count
-  resource_group_name    = var.resource_group.name
-  location               = var.region
-  size                   = "Standard_D4_v4"
-  admin_username         = var.user
-  network_interface_ids  = [
+  name                = "pe-server-${count.index}-${var.id}"
+  count               = var.server_count
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  size                = "Standard_D4_v4"
+  admin_username      = var.user
+  network_interface_ids = [
     azurerm_network_interface.server_nic[count.index].id,
   ]
 
@@ -91,7 +91,7 @@ resource "azurerm_linux_virtual_machine" "server" {
 
   # Due to the nature of azure resources there is no single resource which presents in terraform both public IP and internal DNS
   # for consistency with other providers I thought it would work best to put this tag on the instance
-  tags        = merge({
+  tags = merge({
     internalDNS = var.domain_name == null ? "pe-server-${count.index}-${var.id}.${azurerm_network_interface.server_nic[count.index].internal_domain_name_suffix}" : "pe-server-${count.index}-${var.id}.${var.domain_name}"
   }, var.tags)
 }
@@ -125,13 +125,13 @@ resource "azurerm_network_interface" "psql_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "psql" {
-  name                   = "pe-psql-${count.index}-${var.id}"
-  count                  = var.database_count
-  resource_group_name    = var.resource_group.name
-  location               = var.region
-  size                   = "Standard_D8_v4"
-  admin_username         = var.user
-  network_interface_ids  = [
+  name                = "pe-psql-${count.index}-${var.id}"
+  count               = var.database_count
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  size                = "Standard_D8_v4"
+  admin_username      = var.user
+  network_interface_ids = [
     azurerm_network_interface.psql_nic[count.index].id,
   ]
 
@@ -217,14 +217,14 @@ resource "azurerm_network_interface" "compiler_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "compiler" {
-  name                   = "pe-compiler-${count.index}-${var.id}"
-  count                  = var.compiler_count
-  resource_group_name    = var.resource_group.name
-  location               = var.region
-  availability_set_id    = azurerm_availability_set.compiler_availability_set[0].id
-  size                   = "Standard_D4_v4"
-  admin_username         = var.user
-  network_interface_ids  = [
+  name                = "pe-compiler-${count.index}-${var.id}"
+  count               = var.compiler_count
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  availability_set_id = azurerm_availability_set.compiler_availability_set[0].id
+  size                = "Standard_D4_v4"
+  admin_username      = var.user
+  network_interface_ids = [
     azurerm_network_interface.compiler_nic[count.index].id,
   ]
 
@@ -279,7 +279,7 @@ resource "azurerm_public_ip" "node_public_ip" {
   location            = var.region
   count               = var.node_count
   allocation_method   = "Static"
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "node_nic" {
@@ -297,13 +297,13 @@ resource "azurerm_network_interface" "node_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "node" {
-  name                   = "pe-node-${count.index}-${var.id}"
-  count                  = var.node_count
-  resource_group_name    = var.resource_group.name
-  location               = var.region
-  size                   = "Standard_D4_v4"
-  admin_username         = var.user
-  network_interface_ids  = [
+  name                = "pe-node-${count.index}-${var.id}"
+  count               = var.node_count
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  size                = "Standard_D4_v4"
+  admin_username      = var.user
+  network_interface_ids = [
     azurerm_network_interface.node_nic[count.index].id,
   ]
 
@@ -321,7 +321,7 @@ resource "azurerm_linux_virtual_machine" "node" {
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 30
   }
-  
+
   source_image_id = var.image_id
 
   dynamic "source_image_reference" {
@@ -356,7 +356,7 @@ resource "azurerm_public_ip" "windows_node_public_ip" {
   location            = var.region
   count               = var.windows_node_count
   allocation_method   = "Static"
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_interface" "windows_node_nic" {
@@ -374,15 +374,15 @@ resource "azurerm_network_interface" "windows_node_nic" {
 }
 
 resource "azurerm_windows_virtual_machine" "windows_node" {
-  name                   = "pe-windows-node-${count.index}-${var.id}"
-  computer_name          = "pe-wn-${count.index}-${var.id}"
-  count                  = var.windows_node_count
-  resource_group_name    = var.resource_group.name
-  location               = var.region
-  size                   = "Standard_D4_v4"
-  admin_username         = var.windows_user
-  admin_password         = var.windows_password
-  network_interface_ids  = [
+  name                = "pe-windows-node-${count.index}-${var.id}"
+  computer_name       = "pe-wn-${count.index}-${var.id}"
+  count               = var.windows_node_count
+  resource_group_name = var.resource_group.name
+  location            = var.region
+  size                = "Standard_D4_v4"
+  admin_username      = var.windows_user
+  admin_password      = var.windows_password
+  network_interface_ids = [
     azurerm_network_interface.windows_node_nic[count.index].id,
   ]
 
@@ -395,7 +395,7 @@ resource "azurerm_windows_virtual_machine" "windows_node" {
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 30
   }
-  
+
   source_image_id = var.windows_image_id
 
   dynamic "source_image_reference" {

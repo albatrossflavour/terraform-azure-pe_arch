@@ -4,15 +4,15 @@ terraform {
   required_providers {
     hiera5 = {
       source  = "chriskuchin/hiera5"
-      version = "0.3.0"
+      version = "0.5.4"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.64.0"
+      version = "5.7.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.1.0"
+      version = "3.9.1"
     }
   }
 }
@@ -20,6 +20,8 @@ terraform {
 # Sets the variables that'll be interpolated to determine where variables are
 # located in the hierarchy
 provider "hiera5" {
+  # hiera5 0.4.0 and later default to hiera.yml, so name the file explicitly
+  config = "${path.module}/hiera.yaml"
   scope = {
     architecture = var.architecture
     replica      = var.replica
@@ -28,7 +30,24 @@ provider "hiera5" {
 
 # GCP region and project to operating within
 provider "azurerm" {
-  features {}
+  # Required since azurerm 4.0. When null the provider falls back to the
+  # ARM_SUBSCRIPTION_ID environment variable, then the Azure CLI default
+  subscription_id = var.subscription_id
+
+  # azurerm 5.0 stopped registering resource providers by default, so register
+  # the two this module needs
+  resource_providers_to_register = [
+    "Microsoft.Compute",
+    "Microsoft.Network",
+  ]
+
+  features {
+    # Keep the pre 3.0 behaviour so a destroy removes the resource group even
+    # if Azure has created resources inside it that are not in state
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 # hiera lookps
@@ -81,7 +100,7 @@ locals {
   windows_plan_name       = try(local.windows_plan_list[0], null)
   windows_plan_product    = try(local.windows_plan_list[1], null)
   windows_plan_publisher  = try(local.windows_plan_list[2], null)
-  tags            = merge({
+  tags = merge({
     description = "PEADM Deployed Puppet Enterprise"
     project     = var.project
   }, var.tags)
@@ -122,7 +141,7 @@ module "instances" {
   ssh_key                 = var.ssh_key
   compiler_count          = local.compiler_count
   node_count              = var.node_count
-  windows_node_count      = var.windows_node_count 
+  windows_node_count      = var.windows_node_count
   tags                    = local.tags
   image_id                = local.image_id
   image_publisher         = local.image_publisher
